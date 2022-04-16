@@ -27,9 +27,12 @@ function reloadAlarms(){
         childLi.id=JSON.stringify(newTime);
         let childDiv=document.createElement("div");
         childDiv.innerText= hour + ":" + minute + ":" + second +" "+AMPM;
-        let deleteButton=document.createElement("button");
-        deleteButton.innerHTML="DELETE";
-        deleteButton.classList.add("delete-button");
+        // let deleteButton=document.createElement("button");
+        // deleteButton.innerHTML="DELETE";
+        // deleteButton.classList.add("delete-button");
+        let deleteButton=document.createElement("i");
+        // deleteButton.innerHTML="DELETE";
+        deleteButton.classList.add("delete-button","fa-solid","fa-circle-minus");
         deleteButton.dataset.info = JSON.stringify(newTime);
         childLi.appendChild(childDiv);
         childLi.appendChild(deleteButton);
@@ -101,7 +104,7 @@ setInterval(function(){
 
 //ADDING ALARM
 
-//findAlarm function will tell you if the alarm arready exits or not ** you can't create two alarms with same time;
+//checkAlarm function will tell you if the alarm arready exits or not ** you can't create two alarms with same time;
 function checkAlarm(hour,minute,second){
     var TempAlarmArr=JSON.parse(localStorage.getItem("alarmArr"));
     var result=false;
@@ -127,6 +130,16 @@ alarmBtn.addEventListener("click",function(){
     var second=secondField.value;
     var AMPM= AMPMField.value;
     if(hour<=12&&minute<=59&&second<=59){
+        if(hour.length==0){
+            hour=0;
+        }
+        if(minute.length==0){
+            minute=0;
+        }
+        if(second.length==0){
+            second=0;
+        }
+
         if(AMPM=="AM"){
             var newTime={
                 "hour":hour,
