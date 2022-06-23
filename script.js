@@ -1,52 +1,78 @@
 var timeDisplay=document.getElementById("time-container");
 var alarmList=document.getElementById("alarms-list");
-//localStorage.clear();
+// localStorage.clear();
 //PRINT THE TIME IN TIME DISPLAY
 // var alarmArr=[];
 // localStorage.setItem("alarmArr",JSON.stringify(alarmArr));
 // console.log(localStorage.getItem("alarmArr"));
-function reloadAlarms(){
-    let alarmArr=JSON.parse(localStorage.getItem("alarmArr"));
-    for(let i of alarmArr){
-        let hour=i.hour;
-        let minute=i.minute;
-        let second=i.second;
-        let AMPM=i.AMPM;
-        let newTime={
-            "hour":hour,
-            "minute":minute,
-            "second":second,    
-        }
-        if(AMPM=="AM"){
-            hour=hour;
-        }else{
-            hour=eval(parseInt(hour)-12);
-        }
+function getAlarmArray(){
+    let arr=[];
+    if(localStorage.getItem("alarmArr")!=""&&localStorage.getItem("alarmArr")!=null){
+       arr=JSON.parse(localStorage.getItem("alarmArr"));
+    }else if(localStorage.getItem("alarmArr")==null){
+        localStorage.setItem("alarmArr",JSON.stringify(arr));
+    }
+    return arr;
+}
+function fromAMPMto24(time){
+    if(time.AMPM="PM"){
+        time.hour=time.hour+12;
+    }
+    return time;
+}
+function from24toAMPM(timeObject){//timeObject={hour:,minutes:,seconds:}
+    // var today=new Date();
+    var seconds= timeObject.seconds;
+    var minutes=timeObject.minutes;
+    var hour=timeObject.hour;
+    var AMPM;
 
-        let childLi=document.createElement("li");
-        childLi.id=JSON.stringify(newTime);
-        let childDiv=document.createElement("div");
-        childDiv.innerText= hour + ":" + minute + ":" + second +" "+AMPM;
-        // let deleteButton=document.createElement("button");
-        // deleteButton.innerHTML="DELETE";
-        // deleteButton.classList.add("delete-button");
-        let deleteButton=document.createElement("i");
-        // deleteButton.innerHTML="DELETE";
-        deleteButton.classList.add("delete-button","fa-solid","fa-circle-minus");
-        deleteButton.dataset.info = JSON.stringify(newTime);
-        childLi.appendChild(childDiv);
-        childLi.appendChild(deleteButton);
-        alarmList.appendChild(childLi);
-
+    //CONVERT THE TIME TO AM/PM
+    if(hour>12&&hour<24){
+        hour= hour-12;
+        AMPM="PM";
+    }else if(hour==24){
+        hour=hour-12;
+        AMPM="AM";
+    }else if(hour==12){
+        AMPM="PM";
+    }else{
+        AMPM="AM";
+    }
+    return {
+        hour:hour,
+        minutes:minutes,
+        seconds:seconds,
+        AMPM:AMPM,
     }
 }
 
+// console.log(from24toAMPM());
 
+function reloadAlarms(){
+    let alarmArr=getAlarmArray();
+    alarmList.innerHTML="";
+    for(let i of alarmArr){
+        let hour=i.hour;
+        let minutes=i.minutes;
+        let seconds=i.seconds;
+        let AMPM=i.AMPM;
+        let alarmTime={
+            hour:hour,
+            minutes:minutes,
+            seconds:seconds,
+            AMPM:AMPM,
+        }
+        addAlarmToUI(alarmTime);
+    }
+}
+window.addEventListener("load",reloadAlarms);
 
 setInterval(function(){
     var today=new Date();
     var seconds= today.getSeconds();
     var minutes=today.getMinutes();
+    var hour=today.getHours();
     if(seconds<=9){
         seconds="0"+seconds;
             
@@ -54,62 +80,34 @@ setInterval(function(){
     if(minutes<=9){
         minutes="0"+minutes;
     }
-    //CONVERT THE TIME TO AM/PM
-    if(today.getHours()>12&&today.getHours()<24){
-        timeDisplay.innerHTML=(today.getHours()-12) + ":" + minutes + ":" +seconds+" PM";
-    }else if(today.getHours()==24){
-        timeDisplay.innerHTML=(today.getHours()-12) + ":" + minutes + ":" + seconds+" AM";
-    }else if(today.getHours()==12){
-        timeDisplay.innerHTML=today.getHours() + ":" + minutes + ":" + seconds+" PM";
-    }else{
-        timeDisplay.innerHTML=today.getHours() + ":" + minutes + ":" + seconds+" AM";
+    var timeObject={
+        hour:hour,
+        minutes:minutes,
+        seconds:seconds,
     }
-    //reload alarm lists
-        alarmList.innerHTML="";
-        reloadAlarms();
-    //check if alarm exits from localStorage
-    var deleteButtons;
-    deleteButtons=document.getElementsByClassName("delete-button");
-    for(let i of deleteButtons){
-        i.addEventListener("click",function(){
-            var idOfAlarm=i.dataset.info;
-            //var alamLi=document.getElementById(idOfAlarm);
-            if(localStorage.getItem("alarmArr")!=null){
-                var tempAlarmArr=JSON.parse(localStorage.getItem("alarmArr"));
-                var alarmTime=JSON.parse(idOfAlarm);
-                for(let j=0;j<tempAlarmArr.length;j++){
-                    if(tempAlarmArr[j].hour==alarmTime.hour&&tempAlarmArr[j].minute==alarmTime.minute&&tempAlarmArr[j].second==alarmTime.second){
-                        tempAlarmArr.splice(j,1);
-                        localStorage.setItem("alarmArr",JSON.stringify(tempAlarmArr));
-                    }
-                }
-            }
-
-        })
-    }
+    var AMPMtime=from24toAMPM(timeObject);
+    var AMPMhour=AMPMtime.hour;
+    var AMPMminutes=AMPMtime.minutes;
+    var AMPMseconds=AMPMtime.seconds;
+    var AMPMstatus=AMPMtime.AMPM;
+    timeDisplay.innerHTML=AMPMhour + ":" + AMPMminutes + ":" +AMPMseconds+" "+AMPMstatus;
     //ring the bell
-    var alarms=JSON.parse(localStorage.getItem("alarmArr"));
-    let hour=parseInt(today.getHours());
-    let minute=parseInt(today.getMinutes());
-    let second=parseInt(today.getSeconds());
+    let alarms=getAlarmArray();
     for(let i of alarms){
-        if(parseInt(i.hour)==hour&&parseInt(i.minute)==minute&&parseInt(i.second)==second){
+        if(parseInt(i.hour)==AMPMhour&&parseInt(i.minutes)==AMPMminutes&&parseInt(i.seconds)==AMPMseconds&&i.AMPM==AMPMstatus){
             window.alert("GET READY YOUR ALARM IS UP");
         }
     }
-
-
-
 },1000);
 
 //ADDING ALARM
 
 //checkAlarm function will tell you if the alarm arready exits or not ** you can't create two alarms with same time;
-function checkAlarm(hour,minute,second){
-    var TempAlarmArr=JSON.parse(localStorage.getItem("alarmArr"));
+function checkAlarm(alarmTime){
+    var TempAlarmArr=getAlarmArray();
     var result=false;
     for(let i of TempAlarmArr){
-        if(i.hour==hour&&i.minute==minute&&i.second==second){
+        if(i.hour==alarmTime.hour&&i.minutes==alarmTime.minutes&&i.seconds==alarmTime.seconds&&i.AMPM==alarmTime.AMPM){
             result=true;
         }
     }
@@ -117,6 +115,34 @@ function checkAlarm(hour,minute,second){
 
 }
 
+function removeAlarm(element){
+    var alarmTime= JSON.parse(element.getAttribute("data-info"));
+    removeAlarmFromAlarmList(alarmTime);
+    removeAlarmFromUI(JSON.stringify(alarmTime));
+
+}
+function removeAlarmFromAlarmList(alarmTime){
+    let alarmArr=getAlarmArray();
+    let index=alarmArr.indexOf(alarmTime);
+    alarmArr.splice(index,1);
+    localStorage.setItem("alarmArr",JSON.stringify(alarmArr));
+}
+function removeAlarmFromUI(id){
+    let element=document.getElementById(id);
+    element.remove();
+
+}
+
+function addAlarmToUI(alarmTime){
+    let childLi=document.createElement("li");
+    childLi.id=JSON.stringify(alarmTime);
+    childLi.innerHTML=
+    `<div>`+
+    `${alarmTime.hour<9?`0`+alarmTime.hour:alarmTime.hour}:${alarmTime.minutes<9?`0`+alarmTime.minutes:alarmTime.minutes}:${alarmTime.seconds<9?`0`+alarmTime.seconds:alarmTime.seconds}  ${alarmTime.AMPM}`+
+    `</div>`+
+    `<i class="delete-button fa-solid fa-circle-minus" data-info=${JSON.stringify(alarmTime)} onClick="removeAlarm(this)"></i>`;
+    alarmList.appendChild(childLi);
+}
 
 var alarmBtn=document.getElementById("set-alarm-btn");
 
@@ -126,72 +152,38 @@ alarmBtn.addEventListener("click",function(){
     var secondField=document.getElementById("second");
     var AMPMField= document.getElementById("AMPM");
     var hour=hourField.value;
-    var minute=minuteField.value;
-    var second=secondField.value;
+    var minutes=minuteField.value;
+    var seconds=secondField.value;
     var AMPM= AMPMField.value;
-    if(hour<=12&&minute<=59&&second<=59){
+    if(hour<=12&&minutes<=59&&seconds<=59){
         if(hour.length==0){
             hour=0;
         }
-        if(minute.length==0){
-            minute=0;
+        if(minutes.length==0){
+            minutes=0;
         }
-        if(second.length==0){
-            second=0;
+        if(seconds.length==0){
+            seconds=0;
         }
+        var alarmTime={
+            hour:hour,
+            minutes:minutes,
+            seconds:seconds,
+            AMPM:AMPM,
+        }
+        var doesAlarmAlreadyExists=false;
+        if(getAlarmArray().length!=0){
+            doesAlarmAlreadyExists=checkAlarm(alarmTime);
+        }
+        if(doesAlarmAlreadyExists==false){
+            var alarmArr=getAlarmArray();
+            alarmArr.push(alarmTime);
+            localStorage.setItem("alarmArr",JSON.stringify(alarmArr));
+            console.log(alarmArr);
+            addAlarmToUI(alarmTime);
 
-        if(AMPM=="AM"){
-            var newTime={
-                "hour":hour,
-                "minute":minute,
-                "second":second,
-                "AMPM":AMPM,
-            };
-            //check if the alarm already exits or not; if exists then update the localStorage and add it to your browser;
-            var doesAlarmAlreadyExists=false;
-            console.log(localStorage.getItem("alarmArr"));
-            if(localStorage.getItem("alarmArr")!=null){
-                doesAlarmAlreadyExists=checkAlarm(hour,minute,second);
-            }
-            if(doesAlarmAlreadyExists==false){
-                var alarmArr;
-                if(localStorage.getItem("alarmArr")!=null){
-                    alarmArr=JSON.parse(localStorage.getItem("alarmArr"));
-                }else{
-                    alarmArr=[];
-                }
-                alarmArr.push(newTime);
-                localStorage.setItem("alarmArr",JSON.stringify(alarmArr));
-                console.log(alarmArr);
-
-            }else{
-                window.alert("THIS ALARM ALREADY EXISTS");
-            }
         }else{
-            var newTime={
-                "hour":parseInt(hour)+12,
-                "minute":minute,
-                "second":second,
-                "AMPM":AMPM,
-            }; 
-            var doesAlarmAlreadyExists=false;
-            console.log(localStorage.getItem("alarmArr"));
-            if(localStorage.getItem("alarmArr")!=null){
-                doesAlarmAlreadyExists=checkAlarm(hour,minute,second);
-            }
-            if(doesAlarmAlreadyExists==false){
-                var alarmArr;
-                if(localStorage.getItem("alarmArr")!=null){
-                    alarmArr=JSON.parse(localStorage.getItem("alarmArr"));
-                }else{
-                    alarmArr=[];
-                }
-                alarmArr.push(newTime);
-                localStorage.setItem("alarmArr",JSON.stringify(alarmArr));
-                console.log(alarmArr);
-            }else{
-                window.alert("THIS ALARM ALREADY EXISTS");
-            }
+            window.alert("THIS ALARM ALREADY EXISTS");
         }
 
     }else{
@@ -201,31 +193,9 @@ alarmBtn.addEventListener("click",function(){
     hourField.value="";
     minuteField.value="";
     secondField.value="";
-    AMPMField.value="AM"
+    AMPMField.value=alarmTime.AMPM;
 
 
 })
 
 
-
-//delete alarms
-var deleteButtons;
-// setInterval(function(){  
-// deleteButtons=document.getElementsByClassName("delete-button");},1000);
-for(let i of deleteButtons){
-    i.addEventListener("click",function(){
-        var idOfAlarm=i.dataset.info;
-        //var alamLi=document.getElementById(idOfAlarm);
-        if(localStorage.getItem("alarmArr")!=null){
-            var tempAlarmArr=JSON.parse(localStorage.getItem("alarmArr"));
-            var alarmTime=JSON.parse(idOfAlarm);
-            for(let j=0;j<tempAlarmArr.length;j++){
-                if(tempAlarmArr[j].hour==alarmTime.hour&&tempAlarmArr[j].minute==alarmTime.minute&&tempAlarmArr[j].second==alarmTime.second){
-                    tempAlarmArr.splice(j,1);
-                    JSON.stringify(localStorage.setItem("alarmArr",tempAlarmArr));
-                }
-            }
-        }
-
-    })
-}
