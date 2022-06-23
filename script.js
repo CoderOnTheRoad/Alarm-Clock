@@ -1,10 +1,8 @@
 var timeDisplay=document.getElementById("time-container");
 var alarmList=document.getElementById("alarms-list");
-// localStorage.clear();
-//PRINT THE TIME IN TIME DISPLAY
-// var alarmArr=[];
-// localStorage.setItem("alarmArr",JSON.stringify(alarmArr));
-// console.log(localStorage.getItem("alarmArr"));
+
+
+//Returns the alarmArray 
 function getAlarmArray(){
     let arr=[];
     if(localStorage.getItem("alarmArr")!=""&&localStorage.getItem("alarmArr")!=null){
@@ -14,12 +12,14 @@ function getAlarmArray(){
     }
     return arr;
 }
+//converts AMPM time format to 24 hour Format
 function fromAMPMto24(time){
     if(time.AMPM="PM"){
         time.hour=time.hour+12;
     }
     return time;
 }
+//converts 24 hour formatted time object to AMPM format time object and returns the object
 function from24toAMPM(timeObject){//timeObject={hour:,minutes:,seconds:}
     // var today=new Date();
     var seconds= timeObject.seconds;
@@ -47,8 +47,8 @@ function from24toAMPM(timeObject){//timeObject={hour:,minutes:,seconds:}
     }
 }
 
-// console.log(from24toAMPM());
 
+//In every window reload, reloads  the alarms from Alarm Array in UI
 function reloadAlarms(){
     let alarmArr=getAlarmArray();
     alarmList.innerHTML="";
@@ -68,6 +68,7 @@ function reloadAlarms(){
 }
 window.addEventListener("load",reloadAlarms);
 
+//shows the time and checks if there is some alarm to ring
 setInterval(function(){
     var today=new Date();
     var seconds= today.getSeconds();
@@ -101,49 +102,6 @@ setInterval(function(){
 },1000);
 
 //ADDING ALARM
-
-//checkAlarm function will tell you if the alarm arready exits or not ** you can't create two alarms with same time;
-function checkAlarm(alarmTime){
-    var TempAlarmArr=getAlarmArray();
-    var result=false;
-    for(let i of TempAlarmArr){
-        if(i.hour==alarmTime.hour&&i.minutes==alarmTime.minutes&&i.seconds==alarmTime.seconds&&i.AMPM==alarmTime.AMPM){
-            result=true;
-        }
-    }
-    return result;
-
-}
-
-function removeAlarm(element){
-    var alarmTime= JSON.parse(element.getAttribute("data-info"));
-    removeAlarmFromAlarmList(alarmTime);
-    removeAlarmFromUI(JSON.stringify(alarmTime));
-
-}
-function removeAlarmFromAlarmList(alarmTime){
-    let alarmArr=getAlarmArray();
-    let index=alarmArr.indexOf(alarmTime);
-    alarmArr.splice(index,1);
-    localStorage.setItem("alarmArr",JSON.stringify(alarmArr));
-}
-function removeAlarmFromUI(id){
-    let element=document.getElementById(id);
-    element.remove();
-
-}
-
-function addAlarmToUI(alarmTime){
-    let childLi=document.createElement("li");
-    childLi.id=JSON.stringify(alarmTime);
-    childLi.innerHTML=
-    `<div>`+
-    `${alarmTime.hour<=9?`0`+alarmTime.hour:alarmTime.hour}:${alarmTime.minutes<=9?`0`+alarmTime.minutes:alarmTime.minutes}:${alarmTime.seconds<=9?`0`+alarmTime.seconds:alarmTime.seconds}  ${alarmTime.AMPM}`+
-    `</div>`+
-    `<i class="delete-button fa-solid fa-circle-minus" data-info=${JSON.stringify(alarmTime)} onClick="removeAlarm(this)"></i>`;
-    alarmList.appendChild(childLi);
-}
-
 var alarmBtn=document.getElementById("set-alarm-btn");
 
 alarmBtn.addEventListener("click",function(){
@@ -194,8 +152,54 @@ alarmBtn.addEventListener("click",function(){
     minuteField.value="";
     secondField.value="";
     AMPMField.value=alarmTime.AMPM;
-
-
 })
+
+//checkAlarm function will tell you if the alarm arready exits or not ** you can't create two alarms with same time;
+function checkAlarm(alarmTime){
+    var TempAlarmArr=getAlarmArray();
+    var result=false;
+    for(let i of TempAlarmArr){
+        if(i.hour==alarmTime.hour&&i.minutes==alarmTime.minutes&&i.seconds==alarmTime.seconds&&i.AMPM==alarmTime.AMPM){
+            result=true;
+        }
+    }
+    return result;
+
+}
+//adds the alarm with the given time input in UI
+function addAlarmToUI(alarmTime){
+    let childLi=document.createElement("li");
+    childLi.id=JSON.stringify(alarmTime);
+    childLi.innerHTML=
+    `<div>`+
+    `${alarmTime.hour<=9?`0`+alarmTime.hour:alarmTime.hour}:${alarmTime.minutes<=9?`0`+alarmTime.minutes:alarmTime.minutes}:${alarmTime.seconds<=9?`0`+alarmTime.seconds:alarmTime.seconds}  ${alarmTime.AMPM}`+
+    `</div>`+
+    `<i class="delete-button fa-solid fa-circle-minus" data-info=${JSON.stringify(alarmTime)} onClick="removeAlarm(this)"></i>`;
+    alarmList.appendChild(childLi);
+}
+
+//Removes the alarm
+function removeAlarm(element){
+    var alarmTime= JSON.parse(element.getAttribute("data-info"));
+    removeAlarmFromAlarmList(alarmTime);
+    removeAlarmFromUI(JSON.stringify(alarmTime));
+
+}
+//Removes the alarm from AlarmArray
+function removeAlarmFromAlarmList(alarmTime){
+    let alarmArr=getAlarmArray();
+    let index=alarmArr.indexOf(alarmTime);
+    alarmArr.splice(index,1);
+    localStorage.setItem("alarmArr",JSON.stringify(alarmArr));
+}
+//Removes the alarm from UI
+function removeAlarmFromUI(id){
+    let element=document.getElementById(id);
+    element.remove();
+
+}
+
+
+
 
 
