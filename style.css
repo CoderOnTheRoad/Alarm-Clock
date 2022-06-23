@@ -1,3 +1,11 @@
+@font-face{
+    font-family:'digital-clock-font';
+    src: url('./fonts/digital-7.ttf');
+   }
+   @font-face{
+    font-family:'technology-font';
+    src: url('./fonts/Technology.ttf');
+   }
 body{
     margin: 0px;
     background-color: #162737;
@@ -8,7 +16,7 @@ body{
     height: auto;
     display: flex;
     flex-direction: column;
-    background-color: white;
+    background-color: lightsalmon;
     justify-content: center;
     align-items: center;
     margin: auto;
@@ -19,15 +27,16 @@ body{
 #time-container{
     width: 50%;
     height:100px;
-    background-color:darkgoldenrod;
+    background-color:black;
     border-radius: 10px;
     color: white;
     font-weight:bolder;
-    font-size: xx-large;
+    font-size: 300%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: "technology-font";
 }
 #set-alarm-container{
     width: 55vw;
@@ -41,6 +50,7 @@ body{
     border-top: 2px solid grey;
     padding-top: 10px;
     border-bottom: 2px solid grey;
+    
 
 }
 #input-container{
@@ -78,7 +88,7 @@ body{
 }
 #set-alarm-container input{
     -webkit-appearance: none;
-    background-color: lightblue;
+    background-color: black;
     border: 0px;
     border-radius: 5px;
     width: 80%;
@@ -86,6 +96,8 @@ body{
     font-size: xx-large;
     font-weight: bolder;
     text-align: center;
+    font-family: "digital-clock-font";
+    color: white;
 }
 #set-alarm-container input:focus{
     outline: none;
@@ -100,6 +112,8 @@ body{
     appearance: none; */
     font-size: xx-large;
     font-weight: bolder;
+    font-family: "digital-clock-font";
+    background-color: lightsalmon;
     
     
 }
@@ -160,7 +174,7 @@ option{
 #alarms-list li div{
     font-size: xx-large;
     font-weight: bolder;
-    font-family: monospace;
+    font-family: "digital-clock-font";;
 
 }
 #alarms-list li i{

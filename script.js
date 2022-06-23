@@ -138,7 +138,7 @@ function addAlarmToUI(alarmTime){
     childLi.id=JSON.stringify(alarmTime);
     childLi.innerHTML=
     `<div>`+
-    `${alarmTime.hour<9?`0`+alarmTime.hour:alarmTime.hour}:${alarmTime.minutes<9?`0`+alarmTime.minutes:alarmTime.minutes}:${alarmTime.seconds<9?`0`+alarmTime.seconds:alarmTime.seconds}  ${alarmTime.AMPM}`+
+    `${alarmTime.hour<=9?`0`+alarmTime.hour:alarmTime.hour}:${alarmTime.minutes<=9?`0`+alarmTime.minutes:alarmTime.minutes}:${alarmTime.seconds<=9?`0`+alarmTime.seconds:alarmTime.seconds}  ${alarmTime.AMPM}`+
     `</div>`+
     `<i class="delete-button fa-solid fa-circle-minus" data-info=${JSON.stringify(alarmTime)} onClick="removeAlarm(this)"></i>`;
     alarmList.appendChild(childLi);
